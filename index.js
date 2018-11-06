@@ -141,10 +141,33 @@ export const getApiVersion = wrapApi(WeChat.getApiVersion);
 export const openWXApp = wrapApi(WeChat.openWXApp);
 
 // wrap the APIs
+const nativeOpenWXMiniApp = wrapApi(WeChat.openWXMiniApp);
 const nativeShareToTimeline = wrapApi(WeChat.shareToTimeline);
 const nativeShareToSession = wrapApi(WeChat.shareToSession);
 const nativeShareToFavorite = wrapApi(WeChat.shareToFavorite);
 const nativeSendAuthRequest = wrapApi(WeChat.sendAuthRequest);
+
+/**
+ * 打开微信小程序
+ * @method openWXMiniApp
+ * @param {Object} data
+ * @param {String} data.username - 小程序原始ID
+ * @param {String} data.path - 小程序路径，不传则显示首页
+ * @param {String} data.miniProgramType - 小程序类型，Could be {0|1|2}，对应{正式版|开发版|体验版}
+ * @param {String} data.extMsg - 额外信息
+ */
+export function openWXMiniApp(data) {
+  return new Promise((resolve, reject) => {
+    nativeOpenWXMiniApp(data);
+    emitter.once('WXLaunchMiniProgram.Resp', resp => {
+      if (resp.errCode === 0) {
+        resolve(resp);
+      } else {
+        reject(new WechatError(resp));
+      }
+    });
+  });
+}
 
 /**
  * @method sendAuthRequest
